@@ -1,7 +1,7 @@
 #include <stddef.h>
 #include <stdint.h>
 #include <stdbool.h>
-
+#include "outb.h"
 /* Hardware text mode color constants. */
 enum vga_color {
 	VGA_COLOR_BLACK = 0,
@@ -65,9 +65,19 @@ void VGA_PRINTER(char* text,enum vga_color fc,enum vga_color bg){
                 };
     };
 };
+void SET_CURSOR(uint16_t *idx){
+     uint16_t idx_ = (uint16_t) (idx - (volatile uint16_t *) VGA_MAGIC);
+     uint8_t H_byte = (uint8_t)(idx_ >> 8);
+     uint8_t L_byte = (uint8_t)(idx_ & 0xFF);
+     outb(0x3D4, 0x0F); //reigter_15
+     outb(0x3D5, L_byte);
+     outb(0x3D4, 0x0E); //register_14
+     outb(0x3D5, H_byte);
+};
 void ilyass(void){
     TERMINAL_CLEAN(VGA_COLOR_BLACK);
     VGA_PRINTER("SAMAYKOM",VGA_COLOR_YELLOW,VGA_COLOR_BLUE);
+    SET_CURSOR(vga_index);
 
 while(1){
 
