@@ -38,6 +38,19 @@ size_t strlen(char *c){
 #define VGA_MAGIC 0xB8000
 volatile uint16_t *vga_index =(volatile uint16_t *) VGA_MAGIC;
 
+void TERMINAL_CLEAN(enum vga_color bg){
+    uint16_t *index = (uint16_t *) VGA_MAGIC;
+    uint16_t char_5awi = ara_ra9m(' ',lawn(VGA_COLOR_WHITE,bg));
+
+    while ((uint32_t) index < (uint32_t) 0xB8F9F){
+        *index = char_5awi;
+         index++;
+    
+    };
+    vga_index =(volatile uint16_t *) VGA_MAGIC;
+
+}
+
 void VGA_PRINTER(char* text,enum vga_color fc,enum vga_color bg){
     uint8_t lawn_tot = lawn(fc,bg);
     size_t str_len = strlen(text);
@@ -53,7 +66,8 @@ void VGA_PRINTER(char* text,enum vga_color fc,enum vga_color bg){
     };
 };
 void ilyass(void){
-VGA_PRINTER("SAMAYKOM",VGA_COLOR_YELLOW,VGA_COLOR_BLACK);
+    TERMINAL_CLEAN(VGA_COLOR_BLACK);
+    VGA_PRINTER("SAMAYKOM",VGA_COLOR_YELLOW,VGA_COLOR_BLUE);
 
 while(1){
 
