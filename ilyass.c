@@ -49,12 +49,12 @@ void TERMINAL_CLEAN(enum vga_color bg){
     };
     vga_index =(volatile uint16_t *) VGA_MAGIC;
 
-}
+};
 
 void VGA_PRINTER(char* text,enum vga_color fc,enum vga_color bg){
     uint8_t lawn_tot = lawn(fc,bg);
     size_t str_len = strlen(text);
-    if ((uint32_t)vga_index < (uint32_t) ((uint16_t*)0xB8F9F - str_len)){
+    if ((uint32_t)vga_index <= (uint32_t) ((uint16_t*)0xB8FA0 - str_len)){ //the pointer automatically substructs 2 bytes for each char because of the casting
     size_t i = 0;
     for (i=0;i< str_len;i++){
         char ch = (char) text[i];
@@ -65,7 +65,7 @@ void VGA_PRINTER(char* text,enum vga_color fc,enum vga_color bg){
                 };
     };
 };
-void SET_CURSOR(uint16_t *idx){
+void SET_CURSOR(volatile uint16_t *idx){
      uint16_t idx_ = (uint16_t) (idx - (volatile uint16_t *) VGA_MAGIC);
      uint8_t H_byte = (uint8_t)(idx_ >> 8);
      uint8_t L_byte = (uint8_t)(idx_ & 0xFF);
@@ -74,6 +74,24 @@ void SET_CURSOR(uint16_t *idx){
      outb(0x3D4, 0x0E); //register_14
      outb(0x3D5, H_byte);
 };
+void inspect_address(void *addr){ 
+    const char HEX[16] = {'0','1','2','3','4','5','6','7','8','9','A','B','C','D','E','F'};
+    char text[9] = "";
+    int i;
+    size_t j=0;
+    for (i = 28;i>=0;i-=4){
+    uint8_t num = (uint8_t) (((uint32_t)addr >> i) & 0x0F);   
+    char char_ = HEX[num];
+    text[j] = char_;
+    j++;
+    };
+    text[8] = '\0';
+    VGA_PRINTER("0x",VGA_COLOR_WHITE,VGA_COLOR_BLACK);
+    VGA_PRINTER(text,VGA_COLOR_WHITE,VGA_COLOR_BLACK);
+     
+
+};
+
 void ilyass(void){
     TERMINAL_CLEAN(VGA_COLOR_BLACK);
     VGA_PRINTER("SAMAYKOM",VGA_COLOR_YELLOW,VGA_COLOR_BLUE);
