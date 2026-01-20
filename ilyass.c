@@ -58,6 +58,12 @@ void VGA_PRINTER(char* text,enum vga_color fc,enum vga_color bg){
     size_t i = 0;
     for (i=0;i< str_len;i++){
         char ch = (char) text[i];
+        if (ch == '\n'){
+        uint32_t offset = ((uint16_t *) vga_index - (volatile uint16_t * ) VGA_MAGIC);
+        uint32_t x = offset % 80;
+        if ((uint32_t)((uint16_t *)vga_index+80-x) < 0xB8FA0) {vga_index += 80 - x;};
+        continue;
+        };
         uint16_t buffer = ara_ra9m(ch,lawn_tot);
         *vga_index = buffer;
         vga_index++;
@@ -94,7 +100,7 @@ void inspect_address(void *addr){
 
 void ilyass(void){
     TERMINAL_CLEAN(VGA_COLOR_BLACK);
-    VGA_PRINTER("SAMAYKOM",VGA_COLOR_YELLOW,VGA_COLOR_BLUE);
+    VGA_PRINTER("SAMAYKOM\njoil",VGA_COLOR_YELLOW,VGA_COLOR_BLUE);
     SET_CURSOR(vga_index);
 
 while(1){
